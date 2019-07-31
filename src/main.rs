@@ -1,12 +1,17 @@
 mod redwolf;
 
-use actix_web::{ App, HttpServer };
+use actix_web::{ App, HttpServer, middleware };
 use redwolf::routes;
 
 fn main() -> std::io::Result<()> {
+    std::env::set_var("RUST_LOG", "actix_server=debug,actix_web=debug");
+    env_logger::init();
+
     HttpServer::new(|| {
         App::new()
-            .service(routes::no_params)
+            .wrap( middleware::Logger::default() )
+            .service( routes::no_params )
+            .service( routes::get_magazines )
     })
     .bind("127.0.0.1:8080")?
     .run()

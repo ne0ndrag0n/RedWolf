@@ -4,7 +4,7 @@ use std::fs;
 use toml;
 
 #[derive(Serialize,Deserialize)]
-struct Magazine {
+pub struct Magazine {
     title: String,
     url: String,
     toc_template: String,
@@ -12,8 +12,10 @@ struct Magazine {
 }
 
 #[derive(Serialize,Deserialize)]
-struct MagazineOptions {
-    template: String
+pub struct MagazineOptions {
+    #[serde(skip)]
+    path: String,
+    pub template: String
 }
 
 impl FdoObject for MagazineOptions {
@@ -22,15 +24,12 @@ impl FdoObject for MagazineOptions {
         None
     }
 
-    fn list() -> Vec< MagazineOptions > {
+    fn list() -> std::io::Result< Vec< MagazineOptions > > {
         let mut result: Vec< MagazineOptions > = Vec::new();
+        let options = MagazineOptions::load( "magazines/options.toml" )?;
+        result.push( options );
 
-        match MagazineOptions::load( "magazines/options.toml" ) {
-            Ok( options ) => { result.push( options ); },
-            Err( _ ) => {}
-        };
-
-        result
+        Ok( result )
     }
 
     fn load( path: &str ) -> std::io::Result< MagazineOptions > {
@@ -41,12 +40,15 @@ impl FdoObject for MagazineOptions {
         }
     }
 
-    fn save( &self ) {
-
+    fn save( &self ) -> std::io::Result< () > {
+        match toml::to_string_pretty( &self ) {
+            Ok( toml_string ) => { fs::write( &self.path, toml_string ) },
+            Err( message ) => Err( std::io::Error::new( std::io::ErrorKind::Other, format!( "{:?}", message ) ) )
+        }
     }
 
-    fn delete( &self ) {
-
+    fn delete( &self ) -> std::io::Result< () > {
+        fs::remove_file( &self.path )
     }
 
 }
