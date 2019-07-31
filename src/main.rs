@@ -1,10 +1,15 @@
+#[macro_use]
+extern crate lazy_static;
+#[macro_use]
+extern crate log;
+
 mod redwolf;
 
 use actix_web::{ App, HttpServer, middleware };
 use redwolf::routes;
 
 fn main() -> std::io::Result<()> {
-    std::env::set_var("RUST_LOG", "actix_server=debug,actix_web=debug");
+    std::env::set_var("RUST_LOG", "redwolf=debug,actix_server=debug,actix_web=debug");
     env_logger::init();
 
     HttpServer::new(|| {

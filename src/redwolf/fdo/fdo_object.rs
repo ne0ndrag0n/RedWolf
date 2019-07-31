@@ -1,13 +1,21 @@
 pub trait FdoObject {
 
-    fn id( &self ) -> Option< &str >;
+    fn id( &self ) -> Option< &str > {
+        None
+    }
 
-    fn list() -> std::io::Result< Vec< Self > > where Self: Sized;
+    fn list() -> std::io::Result< Vec< Self > > where Self: Sized {
+        Ok( Vec::new() )
+    }
 
     fn load( path: &str ) -> std::io::Result< Self > where Self: Sized;
 
-    fn save( &self ) -> std::io::Result< () >;
+    fn save( &self ) -> std::io::Result< () > {
+        Err( std::io::Error::new( std::io::ErrorKind::Other, "Not implemented" ) )
+    }
 
-    fn delete( &self ) -> std::io::Result< () >;
+    fn delete( &self ) -> std::io::Result< () > {
+        Err( std::io::Error::new( std::io::ErrorKind::Other, "Not implemented" ) )
+    }
 
 }

@@ -1,7 +1,8 @@
-use crate::redwolf::fdo::fdo_object::FdoObject;
 use serde::{ Serialize, Deserialize };
 use std::fs;
 use toml;
+use crate::redwolf::fdo::fdo_object::FdoObject;
+use crate::redwolf::options::CONFIG;
 
 #[derive(Serialize,Deserialize)]
 pub struct Magazine {
@@ -20,13 +21,9 @@ pub struct MagazineOptions {
 
 impl FdoObject for MagazineOptions {
 
-    fn id( &self ) -> Option< &str > {
-        None
-    }
-
     fn list() -> std::io::Result< Vec< MagazineOptions > > {
         let mut result: Vec< MagazineOptions > = Vec::new();
-        let options = MagazineOptions::load( "magazines/options.toml" )?;
+        let options = MagazineOptions::load( &( CONFIG.magazines_path().to_owned() + "/options.toml" ) )?;
         result.push( options );
 
         Ok( result )
@@ -51,4 +48,19 @@ impl FdoObject for MagazineOptions {
         fs::remove_file( &self.path )
     }
 
+}
+
+impl FdoObject for Magazine {
+    fn load( path: &str ) -> std::io::Result< Magazine > {
+        for path_entry in fs::read_dir( path )? {
+            let path_entry = path_entry?;
+            let directory = path_entry.path();
+            if directory.is_dir() {
+                let path_prefix = format!( "{}", directory.display() );
+                // TODO !!
+            }
+        }
+
+        Ok( Magazine{ title: String::new(), url: String::new(), toc_template: String::new(), article_template: String::new() } )
+    }
 }
