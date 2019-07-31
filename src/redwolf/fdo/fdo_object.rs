@@ -4,7 +4,7 @@ pub trait FdoObject {
         None
     }
 
-    fn list() -> std::io::Result< Vec< Self > > where Self: Sized {
+    fn list( _root_path: &str ) -> std::io::Result< Vec< Self > > where Self: Sized {
         Ok( Vec::new() )
     }
 

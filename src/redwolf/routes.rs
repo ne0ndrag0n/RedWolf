@@ -1,6 +1,4 @@
 use actix_web::{ get, HttpResponse };
-use crate::redwolf::fdo::fdo_object::FdoObject;
-use crate::redwolf::magazine::model::{ Magazine, MagazineOptions };
 use crate::redwolf::options::CONFIG;
 
 #[get("/")]
@@ -9,13 +7,9 @@ pub fn no_params() -> &'static str {
 }
 
 #[get("/magazines")]
-pub fn get_magazines() -> HttpResponse {
-    let magazines_options_path = CONFIG.magazines_path().to_owned() + "/options.toml";
+pub fn get_magazines() -> Result< HttpResponse, HttpResponse > {
+    let magazines_path = CONFIG.magazines_path().to_owned();
+    let magazines_options_path = magazines_path + "/options.toml";
 
-    match MagazineOptions::load( &magazines_options_path ) {
-        Ok( options ) => {
-            HttpResponse::Ok().body( options.template )
-        },
-        Err( message ) => HttpResponse::InternalServerError().body( format!( "{:?}", message ) )
-    }
+    Ok( HttpResponse::Ok().body( "test" ) )
 }

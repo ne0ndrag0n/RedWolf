@@ -2,7 +2,7 @@ use serde::{ Serialize, Deserialize };
 use std::fs;
 use toml;
 use crate::redwolf::fdo::fdo_object::FdoObject;
-use crate::redwolf::options::CONFIG;
+use crate::redwolf::utility::raise_io_error;
 
 #[derive(Serialize,Deserialize)]
 pub struct Magazine {
@@ -14,16 +14,14 @@ pub struct Magazine {
 
 #[derive(Serialize,Deserialize)]
 pub struct MagazineOptions {
-    #[serde(skip)]
-    path: String,
     pub template: String
 }
 
 impl FdoObject for MagazineOptions {
 
-    fn list() -> std::io::Result< Vec< MagazineOptions > > {
+    fn list( root_path: &str ) -> std::io::Result< Vec< MagazineOptions > > {
         let mut result: Vec< MagazineOptions > = Vec::new();
-        let options = MagazineOptions::load( &( CONFIG.magazines_path().to_owned() + "/options.toml" ) )?;
+        let options = MagazineOptions::load( &( root_path.to_owned() + "/options.toml" ) )?;
         result.push( options );
 
         Ok( result )
@@ -33,34 +31,45 @@ impl FdoObject for MagazineOptions {
         let contents = fs::read_to_string( path )?;
         match toml::from_str( &contents ) {
             Ok( options ) => Ok( options ),
-            Err( message ) => Err( std::io::Error::new( std::io::ErrorKind::Other, format!( "{:?}", message ) ) )
+            Err( message ) => Err( raise_io_error( &format!( "{:?}", message ) ) )
         }
-    }
-
-    fn save( &self ) -> std::io::Result< () > {
-        match toml::to_string_pretty( &self ) {
-            Ok( toml_string ) => { fs::write( &self.path, toml_string ) },
-            Err( message ) => Err( std::io::Error::new( std::io::ErrorKind::Other, format!( "{:?}", message ) ) )
-        }
-    }
-
-    fn delete( &self ) -> std::io::Result< () > {
-        fs::remove_file( &self.path )
     }
 
 }
 
 impl FdoObject for Magazine {
-    fn load( path: &str ) -> std::io::Result< Magazine > {
-        for path_entry in fs::read_dir( path )? {
+
+    fn list( root_path: &str ) -> std::io::Result< Vec< Magazine > > {
+        let mut result = Vec::new();
+
+        for path_entry in fs::read_dir( root_path )? {
             let path_entry = path_entry?;
             let directory = path_entry.path();
             if directory.is_dir() {
-                let path_prefix = format!( "{}", directory.display() );
-                // TODO !!
+                match Magazine::load( &format!( "{}", directory.display() ) ) {
+                    Ok( success ) => result.push( success ),
+                    Err( message ) => warn!( target: "Magazine::list", "Skipping loading of invalid or malformed magazine object: {:?}", message )
+                };
             }
         }
 
-        Ok( Magazine{ title: String::new(), url: String::new(), toc_template: String::new(), article_template: String::new() } )
+        Ok( result )
     }
+
+    fn load( path: &str ) -> std::io::Result< Magazine > {
+        let options_path = format!( "{}/meta.toml", path );
+        let contents = fs::read_to_string( &options_path )?;
+
+        let mut toml_options: Magazine = match toml::from_str( &contents ) {
+            Ok( toml_options ) => toml_options,
+            Err( message ) => return Err( raise_io_error( &format!( "{:?}", message ) ) )
+        };
+
+        // Compile/load handlebars templates
+        toml_options.toc_template     = fs::read_to_string( format!( "{}/{}", &options_path, &toml_options.toc_template ) )?;
+        toml_options.article_template = fs::read_to_string( format!( "{}/{}", &options_path, &toml_options.article_template ) )?;
+
+        Ok( toml_options )
+    }
+
 }
