@@ -30,14 +30,27 @@ body > header span:nth-of-type( 2 ) {
 	justify-content: end;
 }
 
+h1, h2, h3, h4, h5 {
+	font-family: 'Shadows Into Light', sans-serif;
+	margin: 0;
+}
+
+h1 {
+	font-size: 3rem;
+}
+
+h2 {
+	font-size: 2.5rem;
+}
+
 .segment {
 	transition: border-left-color 0.5s;
-	border-left: 3px solid chartreuse;
+	border-left: 3px solid rgb(102,204,0);
 	background-color: rgba( 0, 0, 0, 0.5 );
 	padding: 0.5rem;
 }
 
-.segment:hover {
+.segment:hover, .segment.selected {
 	border-left-color: #F77CF7;
 }
 
@@ -60,6 +73,25 @@ a:visited:not( .segment ) {
 	color: gray;
 }
 
+main > section.dualview {
+	margin-top: 2rem;
+	display: grid;
+	grid-template-columns: 2fr 8fr;
+	grid-gap: 1rem;
+	width: 90%;
+	max-width: 1280px;
+	min-width: 675px;
+}
+
+main > section.dualview nav {
+	display: flex;
+	flex-direction: column;
+}
+
+main > section.dualview nav a:not( :nth-of-type( 1 ) ) {
+	margin-top: 0.5rem;
+}
+
 @media only screen and ( max-width: 725px ) {
 	body {
 		grid-template-rows: min-content 1fr min-content;
@@ -67,6 +99,12 @@ a:visited:not( .segment ) {
 
 	body > header span {
 		width: auto;
+		min-width: 0;
+	}
+
+	main > section.dualview {
+		grid-template-columns: none;
+		grid-template-rows: 1fr 2fr;
 		min-width: 0;
 	}
 }
