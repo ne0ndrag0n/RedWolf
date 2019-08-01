@@ -1,1 +1,1 @@
-template = "magazine.html"
+template = "magazine.handlebars"

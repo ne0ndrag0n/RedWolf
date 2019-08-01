@@ -23,13 +23,13 @@ impl AppOptions {
     pub fn magazines_path( &self ) -> &str {
         match &self.magazines_path {
             Some( value ) => &value,
-            None => "./magazines/"
+            None => "./magazines"
         }
     }
 
     pub fn new() -> AppOptions {
         AppOptions{
-            magazines_path: Some( String::from( "./magazines/" ) )
+            magazines_path: Some( String::from( "./magazines" ) )
         }
     }
 }
