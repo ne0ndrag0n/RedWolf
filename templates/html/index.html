@@ -49,6 +49,14 @@
 			background-size: 100% 100%;
 			background-image: url( "img/logo.svg" );
 		}
+
+		@media only screen and (max-width: 725px) {
+			main > section {
+				grid-template-columns: none;
+				grid-template-rows: 1fr 2fr;
+				min-width: 0;
+			}
+		}
 	</style>
 </head>
 

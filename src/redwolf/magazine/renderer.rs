@@ -1,26 +1,6 @@
-use actix_web::{ HttpRequest, HttpResponse, Responder, ResponseError };
+use actix_web::{ HttpRequest, HttpResponse, Responder };
 use crate::redwolf::magazine::model::{ Magazine, Library };
 use handlebars::Handlebars;
-use failure;
-use failure::Fail;
-
-#[derive(Fail, Debug)]
-enum RendererError {
-    #[fail(display = "Template Error!")]
-    TemplateError
-}
-
-impl ResponseError for RendererError {
-    fn error_response( &self ) -> HttpResponse {
-        match &self {
-            RendererError::TemplateError => HttpResponse::InternalServerError().body( "Internal Server Error!" )
-        }
-    }
-}
-
-impl From< handlebars::RenderError > for RendererError {
-    fn from(_: handlebars::RenderError) -> Self { RendererError::TemplateError }
-}
 
 impl Responder for Magazine {
     type Error = failure::Error;
