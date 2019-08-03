@@ -1,5 +1,6 @@
 use crate::redwolf::fdo::fdo_object::FdoObject;
 use serde::{ Serialize, Deserialize };
+use failure::Error;
 use std::fs;
 
 #[derive(Serialize,Deserialize)]
@@ -9,12 +10,9 @@ pub struct AppOptions {
 
 impl FdoObject for AppOptions {
 
-    fn load( path: &str ) -> std::io::Result< AppOptions > {
+    fn load( path: &str ) -> Result< Self, Error > {
         let contents = fs::read_to_string( path )?;
-        match toml::from_str( &contents ) {
-            Ok( options ) => Ok( options ),
-            Err( message ) => Err( std::io::Error::new( std::io::ErrorKind::Other, format!( "{:?}", message ) ) )
-        }
+        Ok( toml::from_str( &contents )? )
     }
 
 }
