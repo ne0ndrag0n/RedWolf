@@ -3,7 +3,6 @@ use failure::Error;
 use std::fs;
 use toml;
 use crate::redwolf::fdo::fdo_object::FdoObject;
-use crate::redwolf::options::CONFIG;
 
 #[derive(Serialize,Deserialize)]
 pub struct Magazine {
@@ -11,38 +10,6 @@ pub struct Magazine {
     url: String,
     toc_template: String,
     article_template: String
-}
-
-#[derive(Serialize,Deserialize)]
-pub struct MagazineOptions {
-    pub template: String
-}
-
-#[derive(Serialize,Deserialize)]
-pub struct Library {
-    pub magazines: Vec< Magazine >,
-    pub options: MagazineOptions
-}
-
-impl FdoObject for MagazineOptions {
-
-    fn list( root_path: &str ) -> Result< Vec< Self >, Error > {
-        let mut result: Vec< MagazineOptions > = Vec::new();
-        let options = MagazineOptions::load( &( root_path.to_owned() + "/options.toml" ) )?;
-        result.push( options );
-
-        Ok( result )
-    }
-
-    fn load( path: &str ) -> Result< Self, Error > {
-        let contents = fs::read_to_string( path )?;
-        let mut options: MagazineOptions = toml::from_str( &contents )?;
-
-        options.template = fs::read_to_string( format!( "{}/{}", CONFIG.magazines_path(), &options.template ) )?;
-
-        Ok( options )
-    }
-
 }
 
 impl FdoObject for Magazine {

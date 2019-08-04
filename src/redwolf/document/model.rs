@@ -7,6 +7,39 @@ use regex::Regex;
 use toml;
 use crate::redwolf::fdo::fdo_object::FdoObject;
 
+pub enum DocumentType {
+    Unknown,
+    Css,
+    Markdown,
+    Xml
+}
+
+impl Default for DocumentType {
+    fn default() -> Self { DocumentType::Unknown }
+}
+
+impl DocumentType {
+    fn from_path( path: &str ) -> DocumentType {
+        let extension = Path::new( path ).extension();
+
+        match extension {
+            Some( extension ) => {
+                let extension = extension.to_string_lossy();
+                match &*extension {
+                    "htm" => DocumentType::Xml,
+                    "html" => DocumentType::Xml,
+                    "xml" => DocumentType::Xml,
+                    "svg" => DocumentType::Xml,
+                    "css" => DocumentType::Css,
+                    "md" => DocumentType::Markdown,
+                    _ => DocumentType::Unknown
+                }
+            },
+            None => DocumentType::Unknown
+        }
+    }
+}
+
 #[derive(Serialize,Deserialize)]
 #[serde(untagged)]
 pub enum DocumentHeader {
@@ -14,10 +47,9 @@ pub enum DocumentHeader {
         path: String
     },
     ArticleHeader {
-        magazine: String,
         title: String,
         summary: Option< String >,
-        bulletpoints: Vec< String >
+        bulletpoints: Option< Vec< String > >
     }
 }
 
@@ -25,6 +57,9 @@ pub enum DocumentHeader {
 pub struct Document {
     pub head: DocumentHeader,
     pub body: String,
+
+    #[serde(skip)]
+    doctype: DocumentType,
 
     // Bug in serde - SystemTime should always be present.
     // serde(skip) does not work for types that have no default value
@@ -81,7 +116,13 @@ impl FdoObject for Document {
 
         let metadata = Path::new( path ).metadata()?;
 
-        Ok( Document { head: document_header, body: document_segments[ 1 ].to_owned(), created: metadata.created()?, modified: metadata.modified()? } )
+        Ok( Document {
+            head: document_header,
+            body: document_segments[ 1 ].to_owned(),
+            doctype: DocumentType::from_path( path ),
+            created: metadata.created()?,
+            modified: metadata.modified()?
+        } )
     }
 
 }

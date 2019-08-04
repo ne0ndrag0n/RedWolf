@@ -5,7 +5,8 @@ use std::fs;
 
 #[derive(Serialize,Deserialize)]
 pub struct AppOptions {
-    magazines_path: Option< String >
+    magazines_path: Option< String >,
+    cache_path: Option< String >
 }
 
 impl FdoObject for AppOptions {
@@ -18,6 +19,7 @@ impl FdoObject for AppOptions {
 }
 
 impl AppOptions {
+
     pub fn magazines_path( &self ) -> &str {
         match &self.magazines_path {
             Some( value ) => &value,
@@ -25,9 +27,17 @@ impl AppOptions {
         }
     }
 
+    pub fn cache_path( &self ) -> &str {
+        match &self.cache_path {
+            Some( value ) => &value,
+            None => "./cache"
+        }
+    }
+
     pub fn new() -> AppOptions {
         AppOptions{
-            magazines_path: Some( String::from( "./magazines" ) )
+            magazines_path: None,
+            cache_path: None
         }
     }
 }
