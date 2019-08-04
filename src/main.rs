@@ -18,6 +18,7 @@ fn main() -> std::io::Result<()> {
         App::new()
             .wrap( middleware::Logger::default() )
             .service( routes::no_params )
+            .service( routes::get_document )
     })
     .bind("127.0.0.1:8080")?
     .run()

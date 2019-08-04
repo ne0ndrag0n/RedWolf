@@ -6,7 +6,8 @@ use std::fs;
 #[derive(Serialize,Deserialize)]
 pub struct AppOptions {
     magazines_path: Option< String >,
-    cache_path: Option< String >
+    cache_path: Option< String >,
+    documents_path: Option< String >
 }
 
 impl FdoObject for AppOptions {
@@ -34,10 +35,18 @@ impl AppOptions {
         }
     }
 
+    pub fn documents_path( &self ) -> &str {
+        match &self.documents_path {
+            Some( value ) => &value,
+            None => "./documents"
+        }
+    }
+
     pub fn new() -> AppOptions {
         AppOptions{
             magazines_path: None,
-            cache_path: None
+            cache_path: None,
+            documents_path: None
         }
     }
 }

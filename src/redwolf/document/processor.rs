@@ -5,7 +5,6 @@ use std::fs;
 use serde::{ Serialize, Deserialize };
 use failure::Error;
 use handlebars::Handlebars;
-use regex::Regex;
 
 #[derive(Serialize,Deserialize)]
 struct MagazineTemplate {
@@ -40,3 +39,9 @@ pub fn select_preprocessor( text: String ) -> Result< String, Error > {
         _ => Err( format_err!( "Incorrect processing directive: {}", first_token ) )
     }
 }
+
+/*
+      let result = re.replace_all( m, | captures: &Captures | {
+        format!( "{}", &captures[ 1 ] )
+    } );
+ */

@@ -1,6 +1,5 @@
 use actix_web::{ HttpRequest, HttpResponse, Responder };
 use crate::redwolf::magazine::model::{ Magazine };
-use handlebars::Handlebars;
 
 impl Responder for Magazine {
     type Error = failure::Error;

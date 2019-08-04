@@ -1,3 +1,4 @@
+use crate::redwolf::fdo::fdo_object::FdoObject;
 use serde::{ Serialize, Deserialize };
 use std::fs;
 use std::time::SystemTime;
@@ -5,7 +6,6 @@ use std::path::Path;
 use failure::{ Fail, Error };
 use regex::Regex;
 use toml;
-use crate::redwolf::fdo::fdo_object::FdoObject;
 
 pub enum DocumentType {
     Unknown,
@@ -64,10 +64,6 @@ pub struct Document {
     // Bug in serde - SystemTime should always be present.
     // serde(skip) does not work for types that have no default value
     #[serde(default = SystemTime::now())]
-    created: SystemTime,
-
-    // Same shit here
-    #[serde(default = SystemTime::now())]
     modified: SystemTime
 }
 
@@ -78,8 +74,8 @@ pub enum DocumentLoadError {
 }
 
 impl Document {
-    pub fn created( &self ) -> &SystemTime { &self.created }
     pub fn modified( &self ) -> &SystemTime { &self.modified }
+    pub fn doctype( &self ) -> &DocumentType { &self.doctype }
 }
 
 impl FdoObject for Document {
@@ -120,7 +116,6 @@ impl FdoObject for Document {
             head: document_header,
             body: document_segments[ 1 ].to_owned(),
             doctype: DocumentType::from_path( path ),
-            created: metadata.created()?,
             modified: metadata.modified()?
         } )
     }
