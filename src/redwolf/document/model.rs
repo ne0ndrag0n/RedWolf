@@ -1,10 +1,11 @@
 use crate::redwolf::fdo::fdo_object::FdoObject;
+use crate::redwolf::document::processor;
 use serde::{ Serialize, Deserialize };
 use std::fs;
 use std::time::SystemTime;
 use std::path::Path;
 use failure::{ Fail, Error };
-use regex::Regex;
+use regex::{ Captures, Regex };
 use toml;
 
 pub enum DocumentType {
@@ -75,7 +76,20 @@ pub enum DocumentLoadError {
 
 impl Document {
     pub fn modified( &self ) -> &SystemTime { &self.modified }
+
     pub fn doctype( &self ) -> &DocumentType { &self.doctype }
+
+    pub fn format( &mut self ) -> Result< (), Error > {
+        lazy_static! {
+            static ref OPTION_REGEX: Regex = Regex::new( r#"\{%(.*?)%\}"# ).expect( "bug: failed to compile static regex for Document::format" );
+        };
+
+        self.body = OPTION_REGEX.replace_all( &self.body, | captures: &Captures | {
+            processor::select_preprocessor( &captures[ 1 ] ).unwrap_or( "[an error occurred processing this directive]".to_string() )
+        } ).to_string();
+
+        Ok( () )
+    }
 }
 
 impl FdoObject for Document {
