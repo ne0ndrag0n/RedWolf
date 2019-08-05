@@ -56,7 +56,7 @@ pub enum DocumentHeader {
 
 #[derive(Serialize,Deserialize)]
 pub struct Document {
-    pub head: DocumentHeader,
+    pub head: Option< DocumentHeader >,
     pub body: String,
 
     #[serde(skip)]
@@ -118,16 +118,19 @@ impl FdoObject for Document {
             static ref OPTION_REGEX: Regex = Regex::new( r"---\n((?s).*?)---\n\n" ).expect( "bug: failed to compile static regex for load_document" );
         };
 
-        let captures = OPTION_REGEX.captures( &document_string ).ok_or( DocumentLoadError::OptionsParseError )?;
-        let options_body = captures.get( 1 ).ok_or( DocumentLoadError::OptionsParseError )?.as_str();
+        let document_options_header = match OPTION_REGEX.captures( &document_string ) {
+            Some( captures ) => match captures.get( 1 ) {
+                Some( header_text ) => Some( toml::from_str( header_text.as_str() )? ),
+                None => None
+            },
+            None => None
+        };
 
-        let document_header: DocumentHeader = toml::from_str( options_body )?;
         let document_segments: Vec< &str > = OPTION_REGEX.splitn( &document_string, 2 ).collect();
-
         let metadata = Path::new( path ).metadata()?;
 
         Ok( Document {
-            head: document_header,
+            head: document_options_header,
             body: document_segments[ 1 ].to_owned(),
             doctype: DocumentType::from_path( path ),
             modified: metadata.modified()?

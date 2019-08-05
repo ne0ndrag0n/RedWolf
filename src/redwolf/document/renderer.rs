@@ -31,14 +31,19 @@ pub fn find_document_by_path( given_path: &str ) -> Result< Option< Document >, 
 
     for mut document in documents {
         match &document.head {
-            DocumentHeader::StandardHeader{ path } => {
-                if path == given_path {
-                    document.format()?;
-                    return Ok( Some( document ) )
+            Some( head ) => {
+                match head {
+                    DocumentHeader::StandardHeader{ path } => {
+                        if path == given_path {
+                            document.format()?;
+                            return Ok( Some( document ) )
+                        }
+                    },
+                    _ => {}
                 }
             },
-            _ => {}
-        };
+            None => {}
+        }
     }
 
     Ok( None )
