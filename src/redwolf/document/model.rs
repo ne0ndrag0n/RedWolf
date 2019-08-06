@@ -20,7 +20,7 @@ impl Default for DocumentType {
 }
 
 impl DocumentType {
-    fn from_path( path: &str ) -> DocumentType {
+    pub fn from_path( path: &str ) -> DocumentType {
         let extension = Path::new( path ).extension();
 
         match extension {
@@ -45,7 +45,7 @@ impl DocumentType {
 #[serde(untagged)]
 pub enum DocumentHeader {
     StandardHeader {
-        path: String
+        private: Option< bool >
     },
     ArticleHeader {
         title: String,
@@ -66,12 +66,6 @@ pub struct Document {
     // serde(skip) does not work for types that have no default value
     #[serde(default = SystemTime::now())]
     modified: SystemTime
-}
-
-#[derive(Fail,Debug)]
-pub enum DocumentLoadError {
-    #[fail(display="Could not parse document options")]
-    OptionsParseError
 }
 
 impl Document {
