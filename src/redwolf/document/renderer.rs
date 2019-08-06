@@ -1,5 +1,5 @@
 use crate::redwolf::fdo::fdo_object::FdoObject;
-use crate::redwolf::document::model::{ Document, DocumentHeader, DocumentType };
+use crate::redwolf::document::model::{ Document, DocumentType };
 use crate::redwolf::options::CONFIG;
 use std::path::{ Path };
 use std::fs;
@@ -47,8 +47,13 @@ pub fn find_document_by_path( given_path: &str ) -> Result< Option< Document >, 
                     Ok( Some( document ) )
                 },
                 Err( err ) => {
-                    warn!( "find_document_by_path: {:?}", err );
-                    Ok( None )
+                    let downcast = err.downcast::< std::io::Error >()?;
+                    warn!( "find_document_by_path: {:?}", downcast );
+                    if downcast.kind() == std::io::ErrorKind::NotFound {
+                        Ok( None )
+                    } else {
+                        Err( format_err!( "{:?}", downcast ) )
+                    }
                 }
             }
         },
@@ -61,8 +66,13 @@ pub fn find_document_by_path( given_path: &str ) -> Result< Option< Document >, 
                         Ok( Some( document ) )
                     },
                     Err( err ) => {
-                        warn!( "find_document_by_path: {:?}", err );
-                        Ok( None )
+                        let downcast = err.downcast::< std::io::Error >()?;
+                        warn!( "find_document_by_path: {:?}", downcast );
+                        if downcast.kind() == std::io::ErrorKind::NotFound {
+                            Ok( None )
+                        } else {
+                            Err( format_err!( "{:?}", downcast ) )
+                        }
                     }
                 }
             },
