@@ -4,7 +4,7 @@ use serde::{ Serialize, Deserialize };
 use std::fs;
 use std::time::SystemTime;
 use std::path::Path;
-use failure::{ Fail, Error };
+use failure::{ Error };
 use regex::{ Captures, Regex };
 use toml;
 
@@ -69,8 +69,6 @@ pub struct Document {
 }
 
 impl Document {
-    pub fn modified( &self ) -> &SystemTime { &self.modified }
-
     pub fn doctype( &self ) -> &DocumentType { &self.doctype }
 
     pub fn format( &mut self ) -> Result< (), Error > {
@@ -120,14 +118,17 @@ impl FdoObject for Document {
             None => None
         };
 
-        let document_segments: Vec< &str > = OPTION_REGEX.splitn( &document_string, 2 ).collect();
-        let metadata = Path::new( path ).metadata()?;
-
         Ok( Document {
+            body: match &document_options_header {
+                Some( _ ) => {
+                    let document_segments: Vec< &str > = OPTION_REGEX.splitn( &document_string, 2 ).collect();
+                    document_segments[ 1 ].to_owned()
+                },
+                None => document_string
+            },
             head: document_options_header,
-            body: document_segments[ 1 ].to_owned(),
             doctype: DocumentType::from_path( path ),
-            modified: metadata.modified()?
+            modified: Path::new( path ).metadata()?.modified()?
         } )
     }
 

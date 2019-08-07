@@ -28,13 +28,6 @@ impl AppOptions {
         }
     }
 
-    pub fn cache_path( &self ) -> &str {
-        match &self.cache_path {
-            Some( value ) => &value,
-            None => "./cache"
-        }
-    }
-
     pub fn documents_path( &self ) -> &str {
         match &self.documents_path {
             Some( value ) => &value,
