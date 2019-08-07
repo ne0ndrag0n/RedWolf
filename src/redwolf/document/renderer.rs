@@ -1,6 +1,7 @@
 use crate::redwolf::fdo::fdo_object::FdoObject;
 use crate::redwolf::document::model::{ Document, DocumentType };
 use crate::redwolf::options::CONFIG;
+use crate::redwolf::errors::ResponseFailure;
 use std::path::{ Path };
 use std::fs;
 use actix_web::{ http, HttpRequest, HttpResponse, Responder };
@@ -29,7 +30,7 @@ impl Responder for Document {
 
 }
 
-pub fn find_document_by_path( given_path: &str ) -> Result< Option< Document >, failure::Error > {
+pub fn find_document_by_path( given_path: &str ) -> Result< Option< Document >, ResponseFailure > {
     lazy_static! {
         static ref PATH_REGEX: Regex = Regex::new( r#"[^0-9A-z\-./]"# ).expect( "bug: failed to compile static regex for load_document" );
     };
@@ -40,43 +41,19 @@ pub fn find_document_by_path( given_path: &str ) -> Result< Option< Document >, 
 
     match path.extension() {
         Some( _ ) => {
-            let document_result = Document::load( &path.as_os_str().to_string_lossy() );
-            match document_result {
-                Ok( mut document ) => {
+            let mut document = Document::load( &path.as_os_str().to_string_lossy() )?;
+            document.format()?;
+            Ok( Some( document ) )
+        },
+        None => {
+            match fs::read_dir( path )?.next() {
+                Some( entry ) => {
+                    let mut document = Document::load( &format!( "{:?}", entry?.path() ) )?;
                     document.format()?;
                     Ok( Some( document ) )
                 },
-                Err( err ) => {
-                    let downcast = err.downcast::< std::io::Error >()?;
-                    warn!( "find_document_by_path: {:?}", downcast );
-                    if downcast.kind() == std::io::ErrorKind::NotFound {
-                        Ok( None )
-                    } else {
-                        Err( format_err!( "{:?}", downcast ) )
-                    }
-                }
+                None => Ok( None )
             }
-        },
-        None => match fs::read_dir( path )?.next() {
-            Some( entry ) => {
-                let document_result = Document::load( &format!( "{:?}", entry?.path() ) );
-                match document_result {
-                    Ok( mut document ) => {
-                        document.format()?;
-                        Ok( Some( document ) )
-                    },
-                    Err( err ) => {
-                        let downcast = err.downcast::< std::io::Error >()?;
-                        warn!( "find_document_by_path: {:?}", downcast );
-                        if downcast.kind() == std::io::ErrorKind::NotFound {
-                            Ok( None )
-                        } else {
-                            Err( format_err!( "{:?}", downcast ) )
-                        }
-                    }
-                }
-            },
-            None => Ok( None )
         }
     }
 }

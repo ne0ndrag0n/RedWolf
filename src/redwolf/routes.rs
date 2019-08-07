@@ -1,7 +1,7 @@
 use crate::redwolf::document::model::{ Document };
+use crate::redwolf::errors::ResponseFailure;
 use crate::redwolf::document;
 use actix_web::{ web, get };
-use failure::Error;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -15,6 +15,6 @@ pub fn no_params() -> &'static str {
 }
 
 #[get("/document/{document_path:.*}")]
-pub fn get_document( request_options: web::Path< PathOptions > ) -> Result< Option< Document >, Error > {
+pub fn get_document( request_options: web::Path< PathOptions > ) -> Result< Option< Document >, ResponseFailure > {
     document::renderer::find_document_by_path( &request_options.document_path )
 }
