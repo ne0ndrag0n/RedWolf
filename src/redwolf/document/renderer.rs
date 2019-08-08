@@ -1,5 +1,5 @@
 use crate::redwolf::fdo::fdo_object::FdoObject;
-use crate::redwolf::document::model::{ Document, DocumentType };
+use crate::redwolf::document::model::{ Document, DocumentType, DocumentHeader };
 use crate::redwolf::options::CONFIG;
 use crate::redwolf::errors::ResponseFailure;
 use std::path::{ Path };
@@ -21,6 +21,19 @@ impl Responder for Document {
     type Future = Result< HttpResponse, failure::Error >;
 
     fn respond_to( self, _req: &HttpRequest ) -> Self::Future {
+        if self.head.is_some() {
+            match self.head.as_ref().unwrap() {
+                DocumentHeader::StandardHeader{ private } => {
+                    if private.is_some() && private.unwrap() {
+                        return Ok(
+                            HttpResponse::Forbidden().body( "" )
+                         )
+                    }
+                },
+                _ => {}
+            }
+        }
+
         Ok(
             HttpResponse::Ok()
                 .header( http::header::CONTENT_TYPE, translate_content_type( self.doctype() ) )
@@ -42,14 +55,14 @@ pub fn find_document_by_path( given_path: &str ) -> Result< Option< Document >, 
     match path.extension() {
         Some( _ ) => {
             let mut document = Document::load( &path.as_os_str().to_string_lossy() )?;
-            document.format()?;
+            document.format( json!( {} ) )?;
             Ok( Some( document ) )
         },
         None => {
             match fs::read_dir( path )?.next() {
                 Some( entry ) => {
                     let mut document = Document::load( &format!( "{:?}", entry?.path() ) )?;
-                    document.format()?;
+                    document.format( json!( {} ) )?;
                     Ok( Some( document ) )
                 },
                 None => Ok( None )

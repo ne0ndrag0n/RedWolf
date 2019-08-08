@@ -7,6 +7,7 @@ use std::path::Path;
 use failure::{ Error };
 use regex::{ Captures, Regex };
 use toml;
+use handlebars::Handlebars;
 
 pub enum DocumentType {
     Unknown,
@@ -71,14 +72,20 @@ pub struct Document {
 impl Document {
     pub fn doctype( &self ) -> &DocumentType { &self.doctype }
 
-    pub fn format( &mut self ) -> Result< (), Error > {
+    pub fn format( &mut self, template_data: serde_json::Value ) -> Result< (), Error > {
         lazy_static! {
-            static ref OPTION_REGEX: Regex = Regex::new( r#"\{%(.*?)%\}"# ).expect( "bug: failed to compile static regex for Document::format" );
+            static ref OPTION_REGEX: Regex = Regex::new( r#"\{%((?s).*?)%\}"# ).expect( "bug: failed to compile static regex for Document::format" );
+            static ref HANDLEBARS: Handlebars = Handlebars::new();
         };
 
+        // Stage 1
         self.body = OPTION_REGEX.replace_all( &self.body, | captures: &Captures | {
             processor::select_preprocessor( &captures[ 1 ] ).unwrap_or( "[an error occurred processing this directive]".to_string() )
         } ).to_string();
+
+
+        // Stage 2
+        self.body = HANDLEBARS.render_template( &self.body, &template_data )?;
 
         Ok( () )
     }
