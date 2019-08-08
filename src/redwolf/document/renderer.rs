@@ -55,14 +55,14 @@ pub fn find_document_by_path( given_path: &str ) -> Result< Option< Document >, 
     match path.extension() {
         Some( _ ) => {
             let mut document = Document::load( &path.as_os_str().to_string_lossy() )?;
-            document.format( json!( {} ) )?;
+            document.format::< serde_json::Value >( None )?;
             Ok( Some( document ) )
         },
         None => {
             match fs::read_dir( path )?.next() {
                 Some( entry ) => {
                     let mut document = Document::load( &format!( "{:?}", entry?.path() ) )?;
-                    document.format( json!( {} ) )?;
+                    document.format::< serde_json::Value >( None )?;
                     Ok( Some( document ) )
                 },
                 None => Ok( None )

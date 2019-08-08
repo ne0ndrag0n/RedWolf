@@ -72,7 +72,7 @@ pub struct Document {
 impl Document {
     pub fn doctype( &self ) -> &DocumentType { &self.doctype }
 
-    pub fn format( &mut self, template_data: serde_json::Value ) -> Result< (), Error > {
+    pub fn format< T: Serialize >( &mut self, template_data: Option< T > ) -> Result< (), Error > {
         lazy_static! {
             static ref OPTION_REGEX: Regex = Regex::new( r#"\{%((?s).*?)%\}"# ).expect( "bug: failed to compile static regex for Document::format" );
             static ref HANDLEBARS: Handlebars = Handlebars::new();
@@ -85,7 +85,10 @@ impl Document {
 
 
         // Stage 2
-        self.body = HANDLEBARS.render_template( &self.body, &template_data )?;
+        if template_data.is_some() {
+            let template_data = template_data.unwrap();
+            self.body = HANDLEBARS.render_template( &self.body, &template_data )?;
+        }
 
         Ok( () )
     }
