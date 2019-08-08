@@ -5,5 +5,9 @@
 </head>
 
 <body>
-    {% magazine_list fragments/fp_magazine_list.handlebars %}
+    {% magazine_list fragments/fp_magazine_list.html %}
+
+    <div>
+        {% include fragments/test.html {"name":"boo"} %}
+    </div>
 </body>
