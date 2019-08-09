@@ -1,5 +1,6 @@
 use crate::redwolf::fdo::fdo_object::FdoObject;
 use crate::redwolf::document::processor;
+use comrak::{ markdown_to_html, ComrakOptions };
 use serde::{ Serialize, Deserialize };
 use std::fs;
 use std::time::SystemTime;
@@ -89,6 +90,12 @@ impl Document {
             let template_data = template_data.unwrap();
             self.body = HANDLEBARS.render_template( &self.body, &template_data )?;
         }
+
+        // Stage 3
+        match self.doctype {
+            DocumentType::Markdown => self.body = markdown_to_html( &self.body, &ComrakOptions::default() ),
+            _ => {}
+        };
 
         Ok( () )
     }

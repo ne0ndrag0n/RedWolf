@@ -1,5 +1,10 @@
-use actix_web::{ HttpRequest, HttpResponse, Responder };
 use crate::redwolf::magazine::model::{ Magazine };
+use crate::redwolf::document::model::{ Document };
+use crate::redwolf::errors::ResponseFailure;
+use crate::redwolf::options::CONFIG;
+use actix_web::{ HttpRequest, HttpResponse, Responder };
+use regex::{ Captures, Regex };
+use std::path::{ Path };
 
 impl Responder for Magazine {
     type Error = failure::Error;
@@ -10,4 +15,8 @@ impl Responder for Magazine {
             HttpResponse::Ok().body( "Magazine" )
         )
     }
+}
+
+pub fn get_articles_for_magazine( magazine: &str ) -> Result< Option< Document >, ResponseFailure > {
+    Ok( None )
 }

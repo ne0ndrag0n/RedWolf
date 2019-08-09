@@ -1,4 +1,3 @@
-url = "research"
 title = "Neon Dragon Research"
 toc_template = "toc.handlebars"
 article_template = "article.handlebars"
