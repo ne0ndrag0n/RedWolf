@@ -1,0 +1,60 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Neon Dragon Studio</title>
+    {% include fragments/opengraph.html %}
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="icon.png">
+
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Shadows+Into+Light&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+
+	<link rel="stylesheet" href="/style/base.css">
+
+	<style>
+		main {
+			display: flex;
+			justify-content: center;
+		}
+
+		section#nd-welcome-content {
+			background-size: 100% 100%;
+			background-image: url( "img/logo.svg" );
+		}
+	</style>
+</head>
+
+<body>
+	<header>
+        {% include fragments/header.html %}
+	</header>
+
+	<main>
+		<section class="dualview">
+			<nav>
+				<a href="#" class="segment">About</a>
+				<a href="#" class="segment">Concordia</a>
+                {% magazine_list fragments/magazine_list.html %}
+				<a href="#" class="segment">Github</a>
+			</nav>
+			<section id="nd-welcome-content">
+
+			</section>
+		</section>
+	</main>
+
+	<footer>
+		{% include fragments/footer.html %}
+	</footer>
+</body>
+
+</html>

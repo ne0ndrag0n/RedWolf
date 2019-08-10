@@ -83,7 +83,13 @@ impl Document {
 
         // Stage 1
         self.body = OPTION_REGEX.replace_all( &self.body, | captures: &Captures | {
-            processor::select_preprocessor( &captures[ 1 ] ).unwrap_or( "[an error occurred processing this directive]".to_string() )
+            let result = processor::select_preprocessor( &captures[ 1 ] );
+            if result.is_err() {
+                error!( "Processing directive failed: {:?}", result );
+                "[an error occurred while processing this directive]".to_owned()
+            } else {
+                result.unwrap()
+            }
         } ).to_string();
 
 
