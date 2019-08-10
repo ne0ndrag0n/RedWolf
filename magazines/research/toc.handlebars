@@ -1,8 +1,20 @@
 <!doctype html>
 <head>
-    <title>title</title>
+    <title>table of contents</title>
 </head>
 
 <body>
-
+    <ul>
+    {{#each articles}}
+        <li>
+            <header>{{ head.title }}</header>
+            {{#if head.summary}}
+            <summary>{{ head.summary }}</summary>
+            {{/if}}
+            {{#each head.bulletpoints}}
+            <p>{{ this }}</p>
+            {{/each}}
+        </li>
+    {{/each}}
+    </ul>
 </body>

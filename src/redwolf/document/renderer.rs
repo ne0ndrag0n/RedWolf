@@ -11,8 +11,9 @@ fn translate_content_type( doctype: &DocumentType ) -> String {
     match doctype {
         DocumentType::Unknown => "text/plain",
         DocumentType::Css => "text/css",
-        DocumentType::Markdown => "text/html",
-        DocumentType::Xml => "text/html"
+        DocumentType::Xml |
+        DocumentType::Handlebars |
+        DocumentType::Markdown => "text/html"
     }.to_owned()
 }
 
@@ -20,11 +21,11 @@ impl Responder for Document {
     type Error = failure::Error;
     type Future = Result< HttpResponse, failure::Error >;
 
-    fn respond_to( mut self, _req: &HttpRequest ) -> Self::Future {
+    fn respond_to( self, _req: &HttpRequest ) -> Self::Future {
         if self.head.is_some() {
             match self.head.as_ref().unwrap() {
                 DocumentHeader::StandardHeader{ private } => {
-                    if private.is_some() && private.unwrap() {
+                    if *private {
                         return Ok(
                             HttpResponse::Forbidden().body( "" )
                          )
@@ -33,8 +34,6 @@ impl Responder for Document {
                 _ => {}
             }
         }
-
-        self.format::< serde_json::Value >( None )?;
 
         Ok(
             HttpResponse::Ok()
@@ -55,10 +54,18 @@ pub fn find_document_by_path( given_path: &str ) -> Result< Option< Document >, 
     let path = Path::new( &sanitized_path );
 
     match path.extension() {
-        Some( _ ) => Ok( Some( Document::load( &path.as_os_str().to_string_lossy() )? ) ),
+        Some( _ ) => Ok( Some( {
+            let mut document = Document::load( &path.as_os_str().to_string_lossy() )?;
+            document.format::< serde_json::Value >( None )?;
+            document
+        } ) ),
         None => {
             match fs::read_dir( path )?.next() {
-                Some( entry ) => Ok( Some( Document::load( &format!( "{:?}", entry?.path() ) )? ) ),
+                Some( entry ) => Ok( Some( {
+                    let mut document = Document::load( &format!( "{:?}", entry?.path() ) )?;
+                    document.format::< serde_json::Value >( None )?;
+                    document
+                } ) ),
                 None => Ok( None )
             }
         }

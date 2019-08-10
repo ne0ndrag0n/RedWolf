@@ -1,22 +1,19 @@
+use crate::redwolf::fdo::fdo_object::{ FdoObject };
 use crate::redwolf::magazine::model::{ Magazine };
 use crate::redwolf::document::model::{ Document };
 use crate::redwolf::errors::ResponseFailure;
 use crate::redwolf::options::CONFIG;
-use actix_web::{ HttpRequest, HttpResponse, Responder };
-use regex::{ Captures, Regex };
-use std::path::{ Path };
-
-impl Responder for Magazine {
-    type Error = failure::Error;
-    type Future = Result< HttpResponse, failure::Error >;
-
-    fn respond_to( self, _req: &HttpRequest ) -> Self::Future {
-        Ok(
-            HttpResponse::Ok().body( "Magazine" )
-        )
-    }
-}
 
 pub fn get_articles_for_magazine( magazine: &str ) -> Result< Option< Document >, ResponseFailure > {
-    Ok( None )
+    let root_magazine_path = format!( "{}/{}", CONFIG.magazines_path(), magazine );
+    let mut magazine = Magazine::load( &root_magazine_path )?;
+    magazine.load_all_articles()?;
+
+    // Load document indicated by magazine.toc_template
+    let mut toc_document = Document::load( &format!( "{}/{}", root_magazine_path, magazine.toc_template ) )?;
+
+    // Render toc_document with the magazine
+    toc_document.format::< Magazine >( Some( magazine ) )?;
+
+    Ok( Some( toc_document ) )
 }

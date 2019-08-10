@@ -14,6 +14,7 @@ pub enum DocumentType {
     Unknown,
     Css,
     Markdown,
+    Handlebars,
     Xml
 }
 
@@ -35,6 +36,7 @@ impl DocumentType {
                     "svg" => DocumentType::Xml,
                     "css" => DocumentType::Css,
                     "md" => DocumentType::Markdown,
+                    "handlebars" => DocumentType::Handlebars,
                     _ => DocumentType::Unknown
                 }
             },
@@ -47,7 +49,7 @@ impl DocumentType {
 #[serde(untagged)]
 pub enum DocumentHeader {
     StandardHeader {
-        private: Option< bool >
+        private: bool
     },
     ArticleHeader {
         title: String,
@@ -98,6 +100,23 @@ impl Document {
         };
 
         Ok( () )
+    }
+
+    pub fn _debug_print_head( &self ) {
+        if self.head.as_ref().is_some() {
+            debug!( "Document has header" );
+            let head = self.head.as_ref().unwrap();
+            match head {
+                DocumentHeader::StandardHeader{ private: _ } => {
+                    debug!( "StandardHeader" );
+                },
+                DocumentHeader::ArticleHeader{ title, summary, bulletpoints: _ } => {
+                    debug!( "ArticleHeader: {} {}", title, if summary.is_some() { summary.as_ref().unwrap() } else { "No summary" } );
+                }
+            }
+        } else {
+            debug!( "Document has no header" );
+        }
     }
 }
 

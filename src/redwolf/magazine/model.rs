@@ -9,17 +9,17 @@ use toml;
 
 #[derive(Serialize,Deserialize)]
 pub struct Magazine {
-    title: String,
+    pub title: String,
 
     #[serde(skip_deserializing)]
-    url: String,
+    pub url: String,
 
-    toc_template: String,
+    pub toc_template: String,
 
-    article_template: String,
+    pub article_template: String,
 
-    #[serde(skip)]
-    articles: Vec< Document >
+    #[serde(skip_deserializing)]
+    pub articles: Vec< Document >
 }
 
 impl Magazine {
@@ -28,13 +28,19 @@ impl Magazine {
         Ok( format!( "{}/{}", CONFIG.magazines_path(), Path::new( &self.url ).file_name().ok_or( format_err!( "Directory parse error" ) )?.to_string_lossy() ) )
     }
 
-    fn load_all_articles( &mut self ) -> Result< (), Error > {
+    pub fn load_all_articles( &mut self ) -> Result< (), Error > {
         let path = format!( "{}/articles", self.get_absolute_path()? );
+
+        debug!( "Looking in {}", path );
 
         for path_entry in fs::read_dir( path )? {
             let file = path_entry?.path();
             if file.is_file() {
-               self.articles.push( Document::load( &format!( "{}", file.display() ) )? );
+               debug!( "File {}", file.display() );
+               self.articles.push( {
+                   let document = Document::load( &format!( "{}", file.display() ) )?;
+                   document
+               } );
             }
         }
 
@@ -70,7 +76,11 @@ impl FdoObject for Magazine {
         let options_path = format!( "{}/meta.toml", path );
         let contents = fs::read_to_string( &options_path )?;
 
-        Ok( toml::from_str( &contents )? )
+        Ok( {
+            let mut result: Magazine = toml::from_str( &contents )?;
+            result.url = format!( "/magazine/{}", Path::new( path ).file_name().ok_or( format_err!( "Directory parse error" ) )?.to_string_lossy() );
+            result
+        } )
     }
 
 }
