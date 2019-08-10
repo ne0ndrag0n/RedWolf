@@ -29,7 +29,16 @@
 		section#nd-welcome-content {
 			background-size: 100% 100%;
 			background-image: url( "img/logo.svg" );
+            min-height: 725px;
 		}
+
+        @media only screen and ( max-width: 725px ) {
+
+            section#nd-welcome-content {
+                min-height: 445px;
+            }
+
+        }
 	</style>
 </head>
 
