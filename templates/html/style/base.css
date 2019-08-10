@@ -7,7 +7,7 @@ html {
 body {
 	margin: 0;
 	display: grid;
-	grid-template-rows: 1fr 9fr min-content;
+	grid-template-rows: min-content 1fr min-content;
 }
 
 body > header {
@@ -88,11 +88,27 @@ main > section.dualview nav {
 	flex-direction: column;
 }
 
-main > section.dualview nav a:not( :nth-of-type( 1 ) ) {
+main > section.dualview:not( .horizontal ) nav a:not( :nth-of-type( 1 ) ) {
 	margin-top: 0.5rem;
 }
 
+@media not screen and ( max-width: 725px ) {
+
+    main > section.dualview.horizontal {
+        grid-template-rows: min-content 1fr;
+        grid-template-columns: none;
+    }
+
+    main > section.dualview.horizontal > nav {
+        display: grid;
+        grid-template-columns: repeat( auto-fit, minmax( 100px, 1fr ) );
+        grid-gap: 1rem;
+    }
+
+}
+
 @media only screen and ( max-width: 725px ) {
+
 	body {
 		grid-template-rows: min-content 1fr min-content;
 	}
@@ -107,4 +123,10 @@ main > section.dualview nav a:not( :nth-of-type( 1 ) ) {
 		grid-template-rows: 1fr 2fr;
 		min-width: 0;
 	}
+
+    main > section.dualview nav a:not( :nth-of-type( 1 ) ) {
+	    margin-top: 0.5rem;
+    }
+
+
 }
