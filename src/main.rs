@@ -21,6 +21,6 @@ fn main() -> std::io::Result<()> {
             .service( routes::get_document )
             .service( routes::get_magazine )
     })
-    .bind("127.0.0.1:8080")?
+    .bind("127.0.0.1:3000")?
     .run()
 }
