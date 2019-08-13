@@ -1,16 +1,9 @@
-use crate::redwolf::magazine::model::Magazine;
 use crate::redwolf::document::model::Document;
 use crate::redwolf::fdo::fdo_object::FdoObject;
 use crate::redwolf::options::CONFIG;
 use std::fs;
 use serde::{ Serialize, Deserialize };
 use failure::Error;
-use handlebars::Handlebars;
-
-#[derive(Serialize,Deserialize)]
-struct MagazineTemplate {
-    magazines: Vec< Magazine >
-}
 
 #[derive(Serialize,Deserialize)]
 struct TemplatePath {
@@ -18,25 +11,6 @@ struct TemplatePath {
     is_dir: bool
 }
 
-#[derive(Serialize,Deserialize)]
-struct DirectoryListTemplate {
-    paths: Vec< TemplatePath >
-}
-
-fn get_magazine_list( template_path: &str ) -> Result< String, Error > {
-    lazy_static! {
-        static ref HANDLEBARS: Handlebars = Handlebars::new();
-    };
-
-    Ok(
-        HANDLEBARS.render_template(
-            &fs::read_to_string( template_path )?,
-            &MagazineTemplate {
-                magazines: Magazine::list( CONFIG.magazines_path() )?
-            }
-        )?
-    )
-}
 
 fn include_document( document_path: &str, template_params: Option< serde_json::Value > ) -> Result< String, Error > {
     let mut document = Document::load( document_path )?;
@@ -49,13 +23,15 @@ fn get_directory_list( path: &str, fragment_path: &str ) -> Result< String, Erro
     let mut document = Document::load( fragment_path )?;
     let mut result: Vec< TemplatePath > = Vec::new();
 
-    for path_entry in fs::read_dir( path )? {
-        let file = path_entry?.path();
+    for path_entry in fs::read_dir( format!( "{}{}", CONFIG.documents_path(), path ) )? {
+        let path = path_entry?.path();
+        let file = path.as_path().strip_prefix( CONFIG.documents_path() )?;
         let file_name = format!( "{}", file.display() );
+
         result.push(
             TemplatePath {
                 path: file_name,
-                is_dir: file.is_dir()
+                is_dir: path.is_dir()
             }
         );
     }
@@ -72,7 +48,6 @@ pub fn select_preprocessor( text: &str ) -> Result< String, Error > {
     let first_token = tokens.next().ok_or( format_err!( "No processing directive given!" ) )?;
 
     match first_token {
-        "magazine_list" => get_magazine_list( tokens.next().ok_or( format_err!( "Invalid first argument to processing directive 'magazine_list'" ) )? ),
         "directory_list" => get_directory_list(
             tokens.next().ok_or( format_err!( "Invalid first argument to processing directive 'directory_list'" ) )?,
             tokens.next().ok_or( format_err!( "Invalid second argument to processing directive 'directory_list'" ) )?

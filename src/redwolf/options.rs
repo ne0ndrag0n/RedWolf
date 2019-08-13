@@ -21,13 +21,6 @@ impl FdoObject for AppOptions {
 
 impl AppOptions {
 
-    pub fn magazines_path( &self ) -> &str {
-        match &self.magazines_path {
-            Some( value ) => &value,
-            None => "./magazines"
-        }
-    }
-
     pub fn documents_path( &self ) -> &str {
         match &self.documents_path {
             Some( value ) => &value,

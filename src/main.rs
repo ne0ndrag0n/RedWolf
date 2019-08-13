@@ -19,7 +19,6 @@ fn main() -> std::io::Result<()> {
             .wrap( middleware::Logger::default() )
             .service( routes::no_params )
             .service( routes::get_document )
-            .service( routes::get_magazine )
     })
     .bind("127.0.0.1:3000")?
     .run()
