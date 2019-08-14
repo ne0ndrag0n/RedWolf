@@ -1,5 +1,6 @@
 use crate::redwolf::fdo::fdo_object::FdoObject;
 use crate::redwolf::document::processor;
+use crate::redwolf::options::CONFIG;
 use comrak::{ markdown_to_html, ComrakOptions };
 use serde::{ Serialize, Deserialize };
 use std::fs;
@@ -62,6 +63,8 @@ pub enum DocumentHeader {
 pub struct Document {
     pub head: Option< DocumentHeader >,
     pub body: String,
+
+    pub url: String,
 
     #[serde(skip)]
     doctype: DocumentType,
@@ -169,6 +172,14 @@ impl FdoObject for Document {
                 None => document_string
             },
             head: document_options_header,
+            url: {
+                let path_wrap = Path::new( path );
+                if path_wrap.starts_with( CONFIG.documents_path() ) {
+                    format!( "/{}", path_wrap.strip_prefix( CONFIG.documents_path() )?.display() )
+                } else {
+                    format!( "/{}", path )
+                }
+            },
             doctype: DocumentType::from_path( path ),
             modified: Path::new( path ).metadata()?.modified()?
         } )

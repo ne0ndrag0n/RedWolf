@@ -2,15 +2,7 @@ use crate::redwolf::document::model::Document;
 use crate::redwolf::fdo::fdo_object::FdoObject;
 use crate::redwolf::options::CONFIG;
 use std::fs;
-use serde::{ Serialize, Deserialize };
 use failure::Error;
-
-#[derive(Serialize,Deserialize)]
-struct TemplatePath {
-    path: String,
-    is_dir: bool
-}
-
 
 fn include_document( document_path: &str, template_params: Option< serde_json::Value > ) -> Result< String, Error > {
     let mut document = Document::load( document_path )?;
@@ -21,22 +13,16 @@ fn include_document( document_path: &str, template_params: Option< serde_json::V
 
 fn get_directory_list( path: &str, fragment_path: &str ) -> Result< String, Error > {
     let mut document = Document::load( fragment_path )?;
-    let mut result: Vec< TemplatePath > = Vec::new();
+    let mut result: Vec< Document > = Vec::new();
 
     for path_entry in fs::read_dir( format!( "{}{}", CONFIG.documents_path(), path ) )? {
         let path = path_entry?.path();
-        let file = path.as_path().strip_prefix( CONFIG.documents_path() )?;
-        let file_name = format!( "{}", file.display() );
+        let file_name = format!( "{}{}", path.display(), if path.is_dir() { "/index.html" } else { "" } );
 
-        result.push(
-            TemplatePath {
-                path: file_name,
-                is_dir: path.is_dir()
-            }
-        );
+        result.push( Document::load( &file_name )? );
     }
 
-    document.format::< Vec< TemplatePath > >( Some( result ) )?;
+    document.format::< Vec< Document > >( Some( result ) )?;
     Ok( document.body )
 }
 
