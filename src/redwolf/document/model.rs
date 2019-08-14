@@ -1,6 +1,5 @@
 use crate::redwolf::fdo::fdo_object::FdoObject;
 use crate::redwolf::document::processor;
-use crate::redwolf::options::CONFIG;
 use comrak::{ markdown_to_html, ComrakOptions };
 use serde::{ Serialize, Deserialize };
 use std::fs;
@@ -174,8 +173,8 @@ impl FdoObject for Document {
             head: document_options_header,
             url: {
                 let path_wrap = Path::new( path );
-                if path_wrap.starts_with( CONFIG.documents_path() ) {
-                    format!( "/{}", path_wrap.strip_prefix( CONFIG.documents_path() )?.display() )
+                if path_wrap.starts_with( "./" ) {
+                    format!( "/{}", path_wrap.strip_prefix( "./" )?.display() )
                 } else {
                     format!( "/{}", path )
                 }

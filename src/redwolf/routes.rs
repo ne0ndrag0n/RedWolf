@@ -14,7 +14,7 @@ pub fn no_params() -> &'static str {
     "Service OK\r\n"
 }
 
-#[get("/document/{path:.*}")]
+#[get("/documents/{path:.*}")]
 pub fn get_document( request_options: web::Path< PathOptions > ) -> Result< Option< Document >, ResponseFailure > {
     document::renderer::find_document_by_path( &request_options.path )
 }
