@@ -3,12 +3,143 @@ title = "Life"
 ---
 
 <!doctype html>
+<html class="no-js" lang="">
 
 <head>
-    <title>Life</title>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Neon Dragon Studio - Life</title>
+    {% include fragments/opengraph.html %}
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="icon.png">
+
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300|Roboto&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Shadows+Into+Light&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+
+	<link rel="stylesheet" href="/static/style/base.css">
+
+	<style>
+		main {
+			display: flex;
+			justify-content: center;
+		}
+
+		section#nd-welcome-content {
+			background-size: 100% 100%;
+            background-image: url( "/static/img/logo.svg" );
+            min-height: 725px;
+        }
+
+        section#nd-welcome-content ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        section#nd-welcome-content ul li {
+            border-top: 3px solid rgb(102,204,0);
+            background-color: rgba( 0, 0, 0, 0.7 );
+            background-size: auto 100%;
+            background-position: right bottom;
+            background-repeat: no-repeat;
+            background-origin: content-box;
+            padding: 0.75rem;
+        }
+
+        section#nd-welcome-content ul li a {
+            text-decoration: none;
+        }
+
+        section#nd-welcome-content ul li a:visited {
+            color: white;
+        }
+
+        section#nd-welcome-content ul li.pentagram {
+            background-image: url( "/static/img/pentagram.svg" );
+        }
+
+        section#nd-welcome-content ul li:not( :nth-of-type( 1 ) ) {
+            margin-top: 1rem;
+        }
+
+        section#nd-welcome-content ul li h2, section#nd-welcome-content ul li h3 {
+            font-family: inherit;
+        }
+
+        section#nd-welcome-content ul li h2 {
+            font-size: 2rem;
+        }
+
+        section#nd-welcome-content ul li h3 {
+            font-size: 1rem;
+        }
+
+        @media only screen and ( max-width: 725px ) {
+            main > section.dualview {
+                grid-template-rows: min-content 2fr;
+            }
+        }
+	</style>
 </head>
 
 <body>
-    <h1>Life - Articles</h1>
-    <p>This is where the articles go</p>
+	<header>
+		{% include fragments/header.html %}
+	</header>
+
+	<main>
+		<section class="dualview">
+			<nav>
+				<a href="#" class="segment">About</a>
+				<a href="#" class="segment">Concordia</a>
+				<a href="#" class="segment">Research</a>
+				<a href="#" class="segment selected">Life</a>
+				<a href="#" class="segment">Github</a>
+			</nav>
+			<section id="nd-welcome-content">
+                <h1>Life Articles</h1>
+                <ul>
+                    <li class="pentagram">
+                        <a href="#">
+                            <h2>Lesser Magic: How It Can Work For You</h2>
+                            <h3>September 24, 2018</h3>
+                            <p>Lesser magic can help you defeat your enemies and rise in every level of your life; we discuss how.</p>
+                        </a>
+                    </li>
+                    <li class="pentagram">
+                        <a href="#">
+                            <h2>Lesser Magic: How It Can Work For You</h2>
+                            <h3>September 24, 2018</h3>
+                            <p>Lesser magic can help you defeat your enemies and rise in every level of your life; we discuss how.</p>
+                        </a>
+                    </li>
+                    <li class="pentagram">
+                        <a href="#">
+                            <h2>Lesser Magic: How It Can Work For You</h2>
+                            <h3>September 24, 2018</h3>
+                            <p>Lesser magic can help you defeat your enemies and rise in every level of your life; we discuss how.</p>
+                        </a>
+                    </li>
+                    <li class="pentagram">
+                        <a href="#">
+                            <h2>Lesser Magic: How It Can Work For You</h2>
+                            <h3>September 24, 2018</h3>
+                            <p>Lesser magic can help you defeat your enemies and rise in every level of your life; we discuss how.</p>
+                        </a>
+                    </li>
+                </ul>
+			</section>
+		</section>
+	</main>
+
+	<footer>
+		{% include fragments/footer.html %}
+	</footer>
 </body>
+
+</html>

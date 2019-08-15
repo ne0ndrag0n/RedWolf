@@ -173,8 +173,8 @@ impl FdoObject for Document {
             head: document_options_header,
             url: {
                 let path_wrap = Path::new( path );
-                if path_wrap.starts_with( "./" ) {
-                    format!( "/{}", path_wrap.strip_prefix( "./" )?.display() )
+                if path_wrap.starts_with( "./documents" ) {
+                    format!( "/{}", path_wrap.strip_prefix( "./documents" )?.display() )
                 } else {
                     format!( "/{}", path )
                 }
