@@ -20,3 +20,7 @@ pub fn extend_json( base: &serde_json::Value, derived: &serde_json::Value ) -> R
 
     Ok( serde_json::to_value( base )? )
 }
+
+pub fn copy_json( item: &serde_json::Value ) -> Result< serde_json::Value, Error > {
+    Ok( serde_json::from_str( &serde_json::to_string( item )? )? )
+}

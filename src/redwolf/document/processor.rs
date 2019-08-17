@@ -61,9 +61,9 @@ pub fn select_preprocessor( text: &str, base_template_data: &serde_json::Value )
                         let token_json: serde_json::Value = serde_json::from_str( token ).map_err( | _ | format_err!( "Malformed third argument to processing directive 'directory_list'" ) )?;
                         Some( utility::extend_json( base_template_data, &token_json )? )
                     } else {
-                        None
+                        Some( utility::copy_json( base_template_data )? )
                     },
-                    None => None
+                    None => Some( utility::copy_json( base_template_data )? )
                 }
             )
         },
@@ -75,9 +75,9 @@ pub fn select_preprocessor( text: &str, base_template_data: &serde_json::Value )
                     let token_json: serde_json::Value = serde_json::from_str( token ).map_err( | _ | format_err!( "Malformed third argument to processing directive 'include'" ) )?;
                     Some( utility::extend_json( base_template_data, &token_json )? )
                 } else {
-                    None
+                    Some( utility::copy_json( base_template_data )? )
                 },
-                None => None
+                None => Some( utility::copy_json( base_template_data )? )
             };
 
             include_document( first_arg, second_arg )
