@@ -82,7 +82,6 @@ fn ifeq_helper<'reg, 'rc>(
     rc: &mut RenderContext<'reg>,
     out: &mut dyn Output,
 ) -> HelperResult {
-    info!( "got here" );
     let param1 = h.param( 0 );
     let param2 = h.param( 1 );
 
