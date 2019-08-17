@@ -8,7 +8,7 @@ use std::path::Path;
 use failure::{ Error };
 use regex::{ Captures, Regex };
 use toml;
-use handlebars::Handlebars;
+use handlebars::*;
 use serde_json;
 
 pub enum DocumentType {
@@ -75,13 +75,47 @@ pub struct Document {
     modified: SystemTime
 }
 
+fn ifeq_helper<'reg, 'rc>(
+    h: &Helper<'reg, 'rc>,
+    r: &'reg Handlebars,
+    ctx: &Context,
+    rc: &mut RenderContext<'reg>,
+    out: &mut dyn Output,
+) -> HelperResult {
+    info!( "got here" );
+    let param1 = h.param( 0 );
+    let param2 = h.param( 1 );
+
+    let dummy = json!( {} );
+
+    let arg1 = if param1.is_some() { param1.unwrap().value() } else { &dummy };
+    let arg2 = if param2.is_some() { param2.unwrap().value() } else { &dummy };
+
+    let template = if arg1 == arg2 {
+        h.template()
+    } else {
+        h.inverse()
+    };
+
+    if template.is_some() {
+        let template = template.unwrap();
+        template.render( r, ctx, rc, out )?;
+    }
+
+    Ok(())
+}
+
 impl Document {
     pub fn doctype( &self ) -> &DocumentType { &self.doctype }
 
     pub fn format< T: Serialize >( &mut self, template_data: Option< T > ) -> Result< (), Error > {
         lazy_static! {
             static ref OPTION_REGEX: Regex = Regex::new( r#"\{%((?s).*?)%\}"# ).expect( "bug: failed to compile static regex for Document::format" );
-            static ref HANDLEBARS: Handlebars = Handlebars::new();
+            static ref HANDLEBARS: Handlebars = {
+                let mut handlebars = Handlebars::new();
+                handlebars.register_helper( "ifeq", Box::new( ifeq_helper ) );
+                handlebars
+            };
         };
 
         // Convert template data to json
