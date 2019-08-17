@@ -18,7 +18,9 @@ body > header {
 	justify-content: center;
 }
 
-body > header span {
+body > header > a {
+	color: white;
+	text-decoration: none;
 	font-size: 2rem;
 	width: 90%;
 	max-width: 1280px;
@@ -69,7 +71,7 @@ a {
 	color: white;
 }
 
-a:visited:not( .segment ) {
+a:visited:not( .segment, .header-link ) {
 	color: gray;
 }
 
@@ -113,7 +115,7 @@ main > section.dualview:not( .horizontal ) nav a:not( :nth-of-type( 1 ) ) {
 		grid-template-rows: min-content 1fr min-content;
 	}
 
-	body > header span {
+	body > header > a {
 		width: auto;
 		min-width: 0;
 	}

@@ -7,6 +7,7 @@ use failure::Error;
 use regex::Regex;
 use serde_json;
 use serde::{ Serialize };
+use chrono;
 
 #[derive(Serialize)]
 struct DirectoryListTemplate {
@@ -82,6 +83,7 @@ pub fn select_preprocessor( text: &str, base_template_data: &serde_json::Value )
 
             include_document( first_arg, second_arg )
         },
+        "year" => Ok( chrono::Utc::now().format( "%Y" ).to_string() ),
         _ => Err( format_err!( "Incorrect processing directive: {}", first_token ) )
     }
 }
