@@ -16,7 +16,7 @@ struct DirectoryListTemplate {
 
 fn include_document( document_path: &str, template_params: Option< serde_json::Value > ) -> Result< String, Error > {
     let mut document = Document::load( document_path )?;
-    document.format::< serde_json::Value >( template_params )?;
+    document.format( template_params )?;
 
     Ok( document.body )
 }
@@ -35,7 +35,7 @@ fn get_directory_list( path: &str, fragment_path: &str, template_params: Option<
         result.documents.push( Document::load( &file_name )? );
     }
 
-    document.format::< DirectoryListTemplate >( Some( result ) )?;
+    document.format( Some( result ) )?;
     Ok( document.body )
 }
 

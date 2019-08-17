@@ -1,5 +1,5 @@
 use crate::redwolf::fdo::fdo_object::FdoObject;
-use crate::redwolf::document::model::{ Document, DocumentType, DocumentHeader };
+use crate::redwolf::document::model::{ Document, DocumentType };
 use crate::redwolf::options::CONFIG;
 use crate::redwolf::errors::ResponseFailure;
 use std::path::{ Path };
@@ -23,15 +23,9 @@ impl Responder for Document {
 
     fn respond_to( self, _req: &HttpRequest ) -> Self::Future {
         if self.head.is_some() {
-            match self.head.as_ref().unwrap() {
-                DocumentHeader::StandardHeader{ private } => {
-                    if *private {
-                        return Ok(
-                            HttpResponse::Forbidden().body( "" )
-                         )
-                    }
-                },
-                _ => {}
+            let head = self.head.as_ref().unwrap();
+            if head.private.is_some() && head.private.unwrap() {
+                return Ok( HttpResponse::Forbidden().body( "" ) )
             }
         }
 

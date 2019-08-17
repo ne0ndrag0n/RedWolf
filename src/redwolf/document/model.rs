@@ -47,16 +47,13 @@ impl DocumentType {
 }
 
 #[derive(Serialize,Deserialize)]
-#[serde(untagged)]
-pub enum DocumentHeader {
-    StandardHeader {
-        private: bool
-    },
-    ArticleHeader {
-        title: String,
-        summary: Option< String >,
-        bulletpoints: Option< Vec< String > >
-    }
+pub struct DocumentHeader {
+    pub private: Option< bool >,
+    pub render_as: Option< String >,
+    pub title: Option< String >,
+    pub summary: Option< String >,
+    pub bulletpoints: Option< Vec< String > >,
+    pub create_date: Option< String >
 }
 
 #[derive(Serialize,Deserialize)]
@@ -144,24 +141,23 @@ impl Document {
             _ => {}
         };
 
-        Ok( () )
-    }
-
-    pub fn _debug_print_head( &self ) {
-        if self.head.as_ref().is_some() {
-            debug!( "Document has header" );
-            let head = self.head.as_ref().unwrap();
-            match head {
-                DocumentHeader::StandardHeader{ private: _ } => {
-                    debug!( "StandardHeader" );
-                },
-                DocumentHeader::ArticleHeader{ title, summary, bulletpoints: _ } => {
-                    debug!( "ArticleHeader: {} {}", title, if summary.is_some() { summary.as_ref().unwrap() } else { "No summary" } );
+        // If render_as is populated in the head, attempt to load document referenced in the field
+        if let Some( head ) = &self.head {
+            if let Some( render_as_path ) = &head.render_as {
+                #[derive(Serialize)]
+                struct OuterTemplateData<'a> {
+                    head: &'a Option< DocumentHeader >,
+                    document_text: &'a str,
+                    settings: &'a serde_json::Value
                 }
+
+                let mut outer_document = Document::load( render_as_path )?;
+                outer_document.format( Some( OuterTemplateData{ head: &self.head, document_text: &self.body, settings: &template_data } ) )?;
+                self.body = outer_document.body.to_owned();
             }
-        } else {
-            debug!( "Document has no header" );
         }
+
+        Ok( () )
     }
 }
 
