@@ -9,6 +9,7 @@ use failure::{ Error };
 use regex::{ Captures, Regex };
 use toml;
 use handlebars::Handlebars;
+use serde_json;
 
 pub enum DocumentType {
     Unknown,
@@ -83,9 +84,15 @@ impl Document {
             static ref HANDLEBARS: Handlebars = Handlebars::new();
         };
 
+        // Convert template data to json
+        let template_data: serde_json::Value = match template_data {
+            Some( data ) => serde_json::to_value( data )?,
+            None => json!( {} )
+        };
+
         // Stage 1
         self.body = OPTION_REGEX.replace_all( &self.body, | captures: &Captures | {
-            let result = processor::select_preprocessor( &captures[ 1 ] );
+            let result = processor::select_preprocessor( &captures[ 1 ], &template_data );
             if result.is_err() {
                 error!( "Processing directive failed: {:?}", result );
                 "[an error occurred while processing this directive]".to_owned()
@@ -96,10 +103,7 @@ impl Document {
 
 
         // Stage 2
-        if template_data.is_some() {
-            let template_data = template_data.unwrap();
-            self.body = HANDLEBARS.render_template( &self.body, &template_data )?;
-        }
+        self.body = HANDLEBARS.render_template( &self.body, &template_data )?;
 
         // Stage 3
         match self.doctype {
