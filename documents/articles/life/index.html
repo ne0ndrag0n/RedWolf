@@ -97,36 +97,7 @@ title = "Life"
             {% include fragments/nav.html {"selected":"Life"} %}
 			<section id="nd-welcome-content">
                 <h1>Life Articles</h1>
-                <ul>
-                    <li class="pentagram">
-                        <a href="#">
-                            <h2>Lesser Magic: How It Can Work For You</h2>
-                            <h3>September 24, 2018</h3>
-                            <p>Lesser magic can help you defeat your enemies and rise in every level of your life; we discuss how.</p>
-                        </a>
-                    </li>
-                    <li class="pentagram">
-                        <a href="#">
-                            <h2>Lesser Magic: How It Can Work For You</h2>
-                            <h3>September 24, 2018</h3>
-                            <p>Lesser magic can help you defeat your enemies and rise in every level of your life; we discuss how.</p>
-                        </a>
-                    </li>
-                    <li class="pentagram">
-                        <a href="#">
-                            <h2>Lesser Magic: How It Can Work For You</h2>
-                            <h3>September 24, 2018</h3>
-                            <p>Lesser magic can help you defeat your enemies and rise in every level of your life; we discuss how.</p>
-                        </a>
-                    </li>
-                    <li class="pentagram">
-                        <a href="#">
-                            <h2>Lesser Magic: How It Can Work For You</h2>
-                            <h3>September 24, 2018</h3>
-                            <p>Lesser magic can help you defeat your enemies and rise in every level of your life; we discuss how.</p>
-                        </a>
-                    </li>
-                </ul>
+                {% directory_list /articles/life/ fragments/list_articles.html %}
 			</section>
 		</section>
 	</main>

@@ -9,12 +9,6 @@ use serde_json;
 use serde::{ Serialize };
 use chrono;
 
-#[derive(Serialize)]
-struct DirectoryListTemplate {
-    documents: Vec< Document >,
-    settings: Option< serde_json::Value >
-}
-
 fn include_document( document_path: &str, template_params: Option< serde_json::Value > ) -> Result< String, Error > {
     let mut document = Document::load( document_path )?;
     document.format( template_params )?;
@@ -23,6 +17,18 @@ fn include_document( document_path: &str, template_params: Option< serde_json::V
 }
 
 fn get_directory_list( path: &str, fragment_path: &str, template_params: Option< serde_json::Value > ) -> Result< String, Error > {
+    #[derive(Serialize)]
+    struct DirectoryListDocument {
+        document: Document,
+        is_dir: bool
+    }
+
+    #[derive(Serialize)]
+    struct DirectoryListTemplate {
+        documents: Vec< DirectoryListDocument >,
+        settings: Option< serde_json::Value >
+    }
+
     let mut document = Document::load( fragment_path )?;
     let mut result = DirectoryListTemplate {
         documents: Vec::new(),
@@ -33,7 +39,10 @@ fn get_directory_list( path: &str, fragment_path: &str, template_params: Option<
         let path = path_entry?.path();
         let file_name = format!( "{}{}", path.display(), if path.is_dir() { "/index.html" } else { "" } );
 
-        result.documents.push( Document::load( &file_name )? );
+        result.documents.push( DirectoryListDocument {
+            document: Document::load( &file_name )?,
+            is_dir: path.is_dir()
+        } );
     }
 
     document.format( Some( result ) )?;

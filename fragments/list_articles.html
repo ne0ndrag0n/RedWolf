@@ -1,0 +1,13 @@
+<ul>
+	{{#each documents}}
+	{{#if document.head.summary}}
+	<li class="pentagram">
+		<a href="{{ document.url }}">
+			<h2>{{ document.head.title }}</h2>
+			<h3>{{ document.head.create_date }}</h3>
+			<p>{{ document.head.summary }}</p>
+		</a>
+	</li>
+	{{/if}}
+	{{/each}}
+</ul>
