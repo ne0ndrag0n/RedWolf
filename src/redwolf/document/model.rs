@@ -1,4 +1,5 @@
 use crate::redwolf::fdo::fdo_object::FdoObject;
+use crate::redwolf::utility;
 use crate::redwolf::document::processor;
 use comrak::{ markdown_to_html, ComrakOptions };
 use serde::{ Serialize, Deserialize };
@@ -53,7 +54,8 @@ pub struct DocumentHeader {
     pub title: Option< String >,
     pub summary: Option< String >,
     pub bulletpoints: Option< Vec< String > >,
-    pub create_date: Option< String >
+    pub create_date: Option< String >,
+    pub tags: Option< Vec< String > >
 }
 
 #[derive(Serialize,Deserialize)]
@@ -101,6 +103,41 @@ fn ifeq_helper<'reg, 'rc>(
     Ok(())
 }
 
+fn has_helper<'reg, 'rc>(
+    h: &Helper<'reg, 'rc>,
+    r: &'reg Handlebars,
+    ctx: &Context,
+    rc: &mut RenderContext<'reg>,
+    out: &mut dyn Output,
+) -> HelperResult {
+    let param1 = h.param( 0 );
+    let param2 = h.param( 1 );
+
+    let mut template = h.inverse();
+
+    if let Some( item_list ) = param1 {
+        if let Some( needle ) = param2 {
+            let item_list: Vec< String > = serde_json::from_value(
+                utility::copy_json( item_list.value() ).map_err( | _ | handlebars::RenderError::new( "Copy json failed for first argument" ) )?
+            )?;
+            let needle = needle.value().as_str().ok_or( handlebars::RenderError::new( "Could not parse second argument" ) )?;
+
+            for item in item_list {
+                if item == needle {
+                    template = h.template();
+                    break;
+                }
+            }
+        }
+    }
+
+    if let Some( template ) = template {
+        template.render( r, ctx, rc, out )?;
+    }
+
+    Ok(())
+}
+
 impl Document {
     pub fn doctype( &self ) -> &DocumentType { &self.doctype }
 
@@ -110,6 +147,7 @@ impl Document {
             static ref HANDLEBARS: Handlebars = {
                 let mut handlebars = Handlebars::new();
                 handlebars.register_helper( "ifeq", Box::new( ifeq_helper ) );
+                handlebars.register_helper( "has", Box::new( has_helper ) );
                 handlebars
             };
         };
