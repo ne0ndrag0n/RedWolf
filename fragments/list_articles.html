@@ -1,7 +1,7 @@
 <ul>
 	{{#each documents}}
 	{{#if document.head.summary}}
-	<li class="pentagram">
+	<li{{#if document.head.tags}} class="{{ document.head.tags.[0] }}"{{/if}}>
 		<a href="{{ document.url }}">
 			<h2>{{ document.head.title }}</h2>
 			<h3>{{ document.head.create_date }}</h3>

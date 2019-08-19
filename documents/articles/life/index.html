@@ -54,9 +54,12 @@ title = "Life"
             color: white;
         }
 
-        section#nd-welcome-content ul li.pentagram {
-            background-image: url( "/static/img/pentagram.svg" );
-        }
+        {% include fragments/style_background.css {
+            "selector": "section#nd-welcome-content ul li",
+            "images": {
+                "occult": "/static/img/pentagram.svg"
+            }
+        } %}
 
         section#nd-welcome-content ul li:not( :nth-of-type( 1 ) ) {
             margin-top: 1rem;

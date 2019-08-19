@@ -1,0 +1,5 @@
+{{#each images}}
+    {{ ../selector }}.{{ @key }} {
+        background-image: url( "{{ this }}" );
+    }
+{{/each}}
