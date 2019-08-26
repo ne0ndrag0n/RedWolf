@@ -3,6 +3,7 @@ use crate::redwolf::fdo::fdo_object::FdoObject;
 use crate::redwolf::utility;
 use crate::redwolf::options::CONFIG;
 use crate::redwolf::url::Request;
+use std::collections::HashMap;
 use std::fs;
 use failure::Error;
 use regex::Regex;
@@ -104,6 +105,22 @@ pub fn select_preprocessor( text: &str, request: &Request, base_template_data: &
             include_document( first_arg, request, second_arg )
         },
         "year" => Ok( chrono::Utc::now().format( "%Y" ).to_string() ),
+        "view_count" => {
+            let mut map: HashMap< String, u32 > = match bincode::deserialize_from( fs::OpenOptions::new().read( true ).write( true ).create( true ).open( format!( "{}/viewcount.bin", CONFIG.filedata_path() ) )? ) {
+                Ok( map ) => map,
+                Err( _ ) => HashMap::new()
+            };
+
+            let count = {
+                let count = map.entry( request.path.to_owned() ).or_insert( 0 );
+                *count = *count + 1;
+                *count
+            };
+
+            bincode::serialize_into( fs::OpenOptions::new().read( true ).write( true ).create( true ).open( format!( "{}/viewcount.bin", CONFIG.filedata_path() ) )?, &map )?;
+
+            Ok( format!( "{}", count ) )
+        },
         _ => Err( format_err!( "Incorrect processing directive: {}", first_token ) )
     }
 }
