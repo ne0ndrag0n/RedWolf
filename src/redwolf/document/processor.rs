@@ -2,6 +2,7 @@ use crate::redwolf::document::model::Document;
 use crate::redwolf::fdo::fdo_object::FdoObject;
 use crate::redwolf::utility;
 use crate::redwolf::options::CONFIG;
+use crate::redwolf::url::Request;
 use std::fs;
 use failure::Error;
 use regex::Regex;
@@ -9,14 +10,23 @@ use serde_json;
 use serde::{ Serialize };
 use chrono;
 
-fn include_document( document_path: &str, template_params: Option< serde_json::Value > ) -> Result< String, Error > {
+fn include_document(
+    document_path: &str,
+    request: &Request,
+    template_params: Option< serde_json::Value >
+) -> Result< String, Error > {
     let mut document = Document::load( document_path )?;
-    document.format( template_params )?;
+    document.format( request, template_params )?;
 
     Ok( document.body )
 }
 
-fn get_directory_list( path: &str, fragment_path: &str, template_params: Option< serde_json::Value > ) -> Result< String, Error > {
+fn get_directory_list(
+    path: &str,
+    fragment_path: &str,
+    request: &Request,
+    template_params: Option< serde_json::Value >
+) -> Result< String, Error > {
     #[derive(Serialize)]
     struct DirectoryListDocument {
         document: Document,
@@ -45,14 +55,14 @@ fn get_directory_list( path: &str, fragment_path: &str, template_params: Option<
         } );
     }
 
-    document.format( Some( result ) )?;
+    document.format( request, Some( result ) )?;
     Ok( document.body )
 }
 
 /**
  * Send the "inner text" of a processing directive
  */
-pub fn select_preprocessor( text: &str, base_template_data: &serde_json::Value ) -> Result< String, Error > {
+pub fn select_preprocessor( text: &str, request: &Request, base_template_data: &serde_json::Value ) -> Result< String, Error > {
     lazy_static! {
         static ref PARSE_REGEX: Regex = Regex::new( r"\s+" ).expect( "bug: failed to compile static regex for select_preprocessor" );
     };
@@ -66,6 +76,7 @@ pub fn select_preprocessor( text: &str, base_template_data: &serde_json::Value )
             get_directory_list(
                 tokens.next().ok_or( format_err!( "Invalid first argument to processing directive 'directory_list'" ) )?,
                 tokens.next().ok_or( format_err!( "Invalid second argument to processing directive 'directory_list'" ) )?,
+                request,
                 match tokens.next() {
                     Some( token ) => if token.len() > 0 {
                         let token_json: serde_json::Value = serde_json::from_str( token ).map_err( | _ | format_err!( "Malformed third argument to processing directive 'directory_list'" ) )?;
@@ -90,7 +101,7 @@ pub fn select_preprocessor( text: &str, base_template_data: &serde_json::Value )
                 None => Some( utility::copy_json( base_template_data )? )
             };
 
-            include_document( first_arg, second_arg )
+            include_document( first_arg, request, second_arg )
         },
         "year" => Ok( chrono::Utc::now().format( "%Y" ).to_string() ),
         _ => Err( format_err!( "Incorrect processing directive: {}", first_token ) )

@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Neon Dragon Studio - {{ head.title }}</title>
+    <title>Neon Dragon Studio - {{ parent_head.title }}</title>
     {% include fragments/opengraph.html %}
     {% include fragments/favicon.html %}
 	{% include fragments/font.html {
@@ -75,11 +75,11 @@
             {% include fragments/nav.html {"selected": "Life"} %}
 			<article>
                 <header>
-                    <h1>{{ head.title }}</h1>
-                    <h2>Posted {{ head.create_date }}</h2>
-                    {{#if head.bulletpoints }}
+                    <h1>{{ parent_head.title }}</h1>
+                    <h2>Posted {{ parent_head.create_date }}</h2>
+                    {{#if parent_head.bulletpoints }}
                     <ul>
-                        {{#each head.bulletpoints}}
+                        {{#each parent_head.bulletpoints}}
                         <li>{{ this }}</li>
                         {{/each}}
                     </ul>
@@ -91,7 +91,7 @@
 	</main>
 
 	<footer>
-		{% include fragments/footer.html %}
+        {% include fragments/footer.html %}
 	</footer>
 </body>
 

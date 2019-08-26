@@ -1,6 +1,7 @@
 use crate::redwolf::fdo::fdo_object::FdoObject;
 use crate::redwolf::utility;
 use crate::redwolf::document::processor;
+use crate::redwolf::url::Request;
 use comrak::{ markdown_to_html, ComrakOptions };
 use serde::{ Serialize, Deserialize };
 use std::fs;
@@ -141,7 +142,7 @@ fn has_helper<'reg, 'rc>(
 impl Document {
     pub fn doctype( &self ) -> &DocumentType { &self.doctype }
 
-    pub fn format< T: Serialize >( &mut self, template_data: Option< T > ) -> Result< (), Error > {
+    pub fn format< T: Serialize >( &mut self, request: &Request, template_data: Option< T > ) -> Result< (), Error > {
         lazy_static! {
             static ref OPTION_REGEX: Regex = Regex::new( r#"\{%((?s).*?)%\}"# ).expect( "bug: failed to compile static regex for Document::format" );
             static ref HANDLEBARS: Handlebars = {
@@ -152,6 +153,12 @@ impl Document {
             };
         };
 
+        #[derive(Serialize)]
+        struct TemplateFrame<'a> {
+            document: &'a Document,
+            request: &'a Request
+        }
+
         // Convert template data to json
         let template_data: serde_json::Value = match template_data {
             Some( data ) => serde_json::to_value( data )?,
@@ -160,7 +167,7 @@ impl Document {
 
         // Stage 1
         self.body = OPTION_REGEX.replace_all( &self.body, | captures: &Captures | {
-            let result = processor::select_preprocessor( &captures[ 1 ], &template_data );
+            let result = processor::select_preprocessor( &captures[ 1 ], request, &template_data );
             if result.is_err() {
                 error!( "Processing directive failed: {:?}", result );
                 "[an error occurred while processing this directive]".to_owned()
@@ -171,7 +178,16 @@ impl Document {
 
 
         // Stage 2
-        self.body = HANDLEBARS.render_template( &self.body, &template_data )?;
+        self.body = HANDLEBARS.render_template(
+            &self.body,
+            &utility::extend_json(
+                &template_data,
+                &serde_json::to_value( TemplateFrame{
+                    document: &self,
+                    request: &request
+                } )?
+            )?
+        )?;
 
         // Stage 3
         match self.doctype {
@@ -184,13 +200,13 @@ impl Document {
             if let Some( render_as_path ) = &head.render_as {
                 #[derive(Serialize)]
                 struct OuterTemplateData<'a> {
-                    head: &'a Option< DocumentHeader >,
+                    parent_head: &'a Option< DocumentHeader >,
                     document_text: &'a str,
                     settings: &'a serde_json::Value
                 }
 
                 let mut outer_document = Document::load( render_as_path )?;
-                outer_document.format( Some( OuterTemplateData{ head: &self.head, document_text: &self.body, settings: &template_data } ) )?;
+                outer_document.format( request, Some( OuterTemplateData{ parent_head: &self.head, document_text: &self.body, settings: &template_data } ) )?;
                 self.body = outer_document.body.to_owned();
             }
         }

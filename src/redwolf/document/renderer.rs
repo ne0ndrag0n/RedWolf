@@ -2,6 +2,8 @@ use crate::redwolf::fdo::fdo_object::FdoObject;
 use crate::redwolf::document::model::{ Document, DocumentType };
 use crate::redwolf::options::CONFIG;
 use crate::redwolf::errors::ResponseFailure;
+use crate::redwolf::url::Request;
+use std::collections::HashMap;
 use std::path::{ Path };
 use std::fs;
 use actix_web::{ http, HttpRequest, HttpResponse, Responder };
@@ -47,17 +49,22 @@ pub fn find_document_by_path( given_path: &str ) -> Result< Option< Document >, 
     info!( "{}", &sanitized_path );
     let path = Path::new( &sanitized_path );
 
+    let request = Request {
+        path: sanitized_path.to_owned(),
+        options: HashMap::new()
+    };
+
     match path.extension() {
         Some( _ ) => Ok( Some( {
             let mut document = Document::load( &path.as_os_str().to_string_lossy() )?;
-            document.format::< serde_json::Value >( None )?;
+            document.format::< serde_json::Value >( &request, None )?;
             document
         } ) ),
         None => {
             match fs::read_dir( path )?.next() {
                 Some( entry ) => Ok( Some( {
                     let mut document = Document::load( &format!( "{:?}", entry?.path() ) )?;
-                    document.format::< serde_json::Value >( None )?;
+                    document.format::< serde_json::Value >( &request, None )?;
                     document
                 } ) ),
                 None => Ok( None )
