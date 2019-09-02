@@ -1,5 +1,5 @@
 <nav>
-    <a href="#" class="segment">About</a>
+    <a href="/about.md" class="segment{{#ifeq parent_head.title settings.selected}} selected{{/ifeq}}">About</a>
     {% directory_list /articles fragments/list_magazines.html %}
     <a href="https://www.github.com/ne0ndrag0n" class="segment">Github</a>
 </nav>

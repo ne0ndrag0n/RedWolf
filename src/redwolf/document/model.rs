@@ -52,6 +52,7 @@ impl DocumentType {
 pub struct DocumentHeader {
     pub private: Option< bool >,
     pub render_as: Option< String >,
+    pub render_with: Option< String >,
     pub title: Option< String >,
     pub summary: Option< String >,
     pub bulletpoints: Option< Vec< String > >,
@@ -96,7 +97,7 @@ fn ifeq_helper<'reg, 'rc>(
         h.inverse()
     };
 
-    if template.is_some() {
+    if !arg1.is_null() && !arg2.is_null() && template.is_some() {
         let template = template.unwrap();
         template.render( r, ctx, rc, out )?;
     }
@@ -160,10 +161,15 @@ impl Document {
         }
 
         // Convert template data to json
-        let template_data: serde_json::Value = match template_data {
+        let mut template_data: serde_json::Value = match template_data {
             Some( data ) => serde_json::to_value( data )?,
             None => json!( {} )
         };
+
+        if self.head.is_some() && self.head.as_ref().unwrap().render_with.is_some() {
+            let json = serde_json::from_str( self.head.as_ref().unwrap().render_with.as_ref().unwrap() )?;
+            template_data = utility::extend_json( &template_data, &json )?;
+        }
 
         // Stage 1
         self.body = OPTION_REGEX.replace_all( &self.body, | captures: &Captures | {

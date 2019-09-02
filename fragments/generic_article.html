@@ -1,0 +1,97 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Neon Dragon Research - {{ parent_head.title }}</title>
+    {% include fragments/opengraph.html %}
+	{% include fragments/favicon.html %}
+	{% include fragments/font.html {
+		"roboto": true,
+		"shadowlight": true,
+		"opensans": true
+	} %}
+
+	<link rel="stylesheet" href="/static/style/base.css">
+
+	<style>
+		main {
+			display: flex;
+			justify-content: center;
+		}
+
+		section#nd-welcome-content {
+			background-size: 100% 100%;
+			background-image: url( "/static/img/logo.svg" );
+            min-height: 725px;
+		}
+
+		article header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        article header h1, article header h2 {
+            display: inline-block;
+
+        }
+
+        article header ul {
+            width: 50%;
+            font-size: 1.5rem;
+        }
+
+        article h1, article h2, article header * {
+            font-family: 'Open Sans Condensed', sans-serif;
+        }
+
+        article > h1 {
+            font-size: 2rem;
+        }
+
+        article p {
+            font-size: 16pt;
+            text-align: justify;
+            line-height: 1.5;
+            margin-top: 0.5rem;
+        }
+
+        @media only screen and ( max-width: 725px ) {
+
+            section#nd-welcome-content {
+                min-height: 445px;
+            }
+
+            main > section.dualview {
+                grid-template-rows: min-content 2fr;
+            }
+
+        }
+	</style>
+</head>
+
+<body>
+	<header>
+        {% include fragments/header.html %}
+	</header>
+
+	<main>
+		<section class="dualview">
+			{% include fragments/nav.html %}
+			<section id="nd-welcome-content">
+				<article>
+					{{{ document_text }}}
+				</article>
+			</section>
+		</section>
+	</main>
+
+	<footer>
+		{% include fragments/footer.html %}
+	</footer>
+</body>
+
+</html>
