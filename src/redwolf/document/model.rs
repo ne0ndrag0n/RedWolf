@@ -197,7 +197,11 @@ impl Document {
 
         // Stage 3
         match self.doctype {
-            DocumentType::Markdown => self.body = markdown_to_html( &self.body, &ComrakOptions::default() ),
+            DocumentType::Markdown => self.body = markdown_to_html( &self.body, & {
+                let mut comrak_options = ComrakOptions::default();
+                comrak_options.unsafe_ = true;
+                comrak_options
+             } ),
             _ => {}
         };
 

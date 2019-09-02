@@ -72,11 +72,11 @@
 
 	<main>
 		<section class="dualview horizontal">
-            {% include fragments/nav.html {"selected": "Life"} %}
+            {% include fragments/nav.html %}
 			<article>
                 <header>
                     <h1>{{ parent_head.title }}</h1>
-                    <h2>Posted {{ parent_head.create_date }}</h2>
+                    {{#if parent_head.create_date }}<h2>Posted {{ parent_head.create_date }}</h2>{{/if}}
                     {{#if parent_head.bulletpoints }}
                     <ul>
                         {{#each parent_head.bulletpoints}}
