@@ -1,5 +1,5 @@
 ---
-title = "Terms of Service"
+title = "Terms of Use"
 render_as = "fragments/article.html"
 ---
 
